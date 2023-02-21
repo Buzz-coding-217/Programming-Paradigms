@@ -24,6 +24,7 @@ void loop()
   // converting the value from sensor and printing it on serial monitor
   int value = analogRead(reading);
   float Moisture = value * 500.0 / 1023.0;
+  Serial.print("Soil Moisture: ");
   Serial.println(Moisture);
   
   // changing the color of the LED depending upon moisture
@@ -52,7 +53,8 @@ void loop()
 // It doesn't interfare the loop function
 void detectMotion() {
   if (digitalRead(motionPin) == HIGH) {
-    digitalWrite(4, HIGH);  
+    digitalWrite(4, HIGH); 
+    Serial.println("Motion Detected");
   }
   else {
     digitalWrite(4, LOW);  
