@@ -20,30 +20,30 @@ void setup()
   
   noInterrupts();
  
-  // Initialize Timer1
+  // Initialising Timer1
   TCCR1A = 0;
   TCCR1B = 0;
  
   // Set timer1_compare_match to the correct compare match register value
-  // 256 prescaler & 31246 compare match = 2Hz
+  // Setting the value of timer compare register according to the formula - [Clock / (Prescaler * desirable freq)] - 1
   timer1_compare_match = 31249;
  
-  // Preload timer with compare match value
+  // Preloading the timer with the register
   TCNT1 = timer1_compare_match;
  
   // Set prescaler to 256
   TCCR1B |= (1 << CS12);
  
-  // Enable timer interrupt for compare mode
+  // Setting timer interrupt for compare mode
   TIMSK1 |= (1 << OCIE1A);
  
   // Enable all interrupts
   interrupts();
   
   // adding a interrupt for motion sensor
-  // Specifying the Port (Pin Change Interrupt Control Register)
+  // Specifying which Port to be used - Port B
   PCICR |= B00000001;
-  // Specifying the Pin (Pin Change Mask)
+  // Specifying which Pin to be used - Pin 8
   PCMSK0 |= B00000001;
 }
 
@@ -92,7 +92,7 @@ ISR(PCINT0_vect) {
 ISR(TIMER1_COMPA_vect)
 // Interrupt Service Routine for compare mode
 {
-  // Preload timer with compare match value
+  // Preloading the timer with the register
   TCNT1 = timer1_compare_match;
   
   // Write opposite value to LED
