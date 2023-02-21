@@ -24,7 +24,8 @@ void loop()
 // It doesn't interfare the loop function
 void detectMotion() {
   if (digitalRead(motionPin) == HIGH) {
-    digitalWrite(4, HIGH);  
+    digitalWrite(4, HIGH);
+    Serial.println("Motion Detected");
   }
   else {
     digitalWrite(4, LOW);  
