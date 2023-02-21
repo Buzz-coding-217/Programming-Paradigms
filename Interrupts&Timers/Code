@@ -1,0 +1,100 @@
+// Global variables
+const int reading = A0;
+const int motionPin = 8;
+
+
+int timer1_compare_match;
+
+// setup function which runs only once
+void setup()
+{
+  //braud rate for serial communication
+  Serial.begin(9600);
+  // setting pin modes as output & input
+  pinMode(7, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(13, OUTPUT);
+  pinMode(motionPin, INPUT);
+  
+  noInterrupts();
+ 
+  // Initialize Timer1
+  TCCR1A = 0;
+  TCCR1B = 0;
+ 
+  // Set timer1_compare_match to the correct compare match register value
+  // 256 prescaler & 31246 compare match = 2Hz
+  timer1_compare_match = 31249;
+ 
+  // Preload timer with compare match value
+  TCNT1 = timer1_compare_match;
+ 
+  // Set prescaler to 256
+  TCCR1B |= (1 << CS12);
+ 
+  // Enable timer interrupt for compare mode
+  TIMSK1 |= (1 << OCIE1A);
+ 
+  // Enable all interrupts
+  interrupts();
+  
+  // adding a interrupt for motion sensor
+  // Specifying the Port (Pin Change Interrupt Control Register)
+  PCICR |= B00000001;
+  // Specifying the Pin (Pin Change Mask)
+  PCMSK0 |= B00000001;
+}
+
+// loop will run continously
+void loop()
+{
+  // converting the value from sensor and printing it on serial monitor
+  int value = analogRead(reading);
+  float Moisture = value * 500.0 / 1023.0;
+  Serial.println(Moisture);
+  
+  // changing the color of the LED depending upon moisture
+  if (Moisture > 200 && Moisture < 300)
+  {
+   digitalWrite(7, LOW);
+   digitalWrite(6, LOW);
+   digitalWrite(5, HIGH);
+  }
+  else if (Moisture < 200)
+  {
+    digitalWrite(7, HIGH);
+    digitalWrite(6, LOW);
+    digitalWrite(5, LOW);
+  }
+  else if (Moisture > 300)
+  {
+   digitalWrite(7, LOW);
+   digitalWrite(6, HIGH);
+   digitalWrite(5, LOW);
+  }
+  delay(200);
+}
+
+// interrupt function which is called whenever interrupted
+// It doesn't interfare the loop function
+// It is a C method which directly tells the compiler for Interrupt control
+// Interrupt service routine
+ISR(PCINT0_vect) {
+  if (digitalRead(motionPin) == HIGH) {
+    digitalWrite(4, HIGH);  
+  }
+  else {
+    digitalWrite(4, LOW);  
+  }
+}
+ISR(TIMER1_COMPA_vect)
+// Interrupt Service Routine for compare mode
+{
+  // Preload timer with compare match value
+  TCNT1 = timer1_compare_match;
+  
+  // Write opposite value to LED
+  digitalWrite(13, digitalRead(13) ^ 1);
+}
