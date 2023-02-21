@@ -1,0 +1,32 @@
+// Global variables
+const int motionPin = 2;
+
+// setup function which runs only once
+void setup()
+{
+  //braud rate for serial communication
+  Serial.begin(9600);
+  // setting pin modes as output & input
+  pinMode(4, OUTPUT);
+  pinMode(motionPin, INPUT);
+  
+  // adding a interrupt for motion sensor
+  attachInterrupt(digitalPinToInterrupt(motionPin), detectMotion, CHANGE);
+}
+
+// loop will run continously
+void loop()
+{ 
+  delay(200);
+}
+
+// interrupt function which is called whenever interrupted
+// It doesn't interfare the loop function
+void detectMotion() {
+  if (digitalRead(motionPin) == HIGH) {
+    digitalWrite(4, HIGH);  
+  }
+  else {
+    digitalWrite(4, LOW);  
+  }
+}
