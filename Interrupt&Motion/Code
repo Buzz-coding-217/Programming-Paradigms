@@ -1,5 +1,5 @@
 // Global variables
-const int reading = A0;
+const int soilPin = 3;
 const int motionPin = 2;
 
 // setup function which runs only once
@@ -9,54 +9,41 @@ void setup()
   Serial.begin(9600);
   // setting pin modes as output & input
   pinMode(7, OUTPUT);
-  pinMode(6, OUTPUT);
-  pinMode(5, OUTPUT);
   pinMode(4, OUTPUT);
   pinMode(motionPin, INPUT);
   
-  // adding a interrupt for motion sensor
+  // adding a interrupt for motion sensor & Soil Sensor
   attachInterrupt(digitalPinToInterrupt(motionPin), detectMotion, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(soilPin), soilChange, CHANGE);
 }
 
 // loop will run continously
 void loop()
 {
-  // converting the value from sensor and printing it on serial monitor
-  int value = analogRead(reading);
-  float Moisture = value * 500.0 / 1023.0;
-  Serial.print("Soil Moisture: ");
-  Serial.println(Moisture);
-  
-  // changing the color of the LED depending upon moisture
-  if (Moisture > 200 && Moisture < 300)
-  {
-   digitalWrite(7, LOW);
-   digitalWrite(6, LOW);
-   digitalWrite(5, HIGH);
-  }
-  else if (Moisture < 200)
-  {
-    digitalWrite(7, HIGH);
-    digitalWrite(6, LOW);
-    digitalWrite(5, LOW);
-  }
-  else if (Moisture > 300)
-  {
-   digitalWrite(7, LOW);
-   digitalWrite(6, HIGH);
-   digitalWrite(5, LOW);
-  }
-  delay(200);
+  delay(1000);
 }
 
 // interrupt function which is called whenever interrupted
 // It doesn't interfare the loop function
+
+//Interrupt for Motion Detection
 void detectMotion() {
   if (digitalRead(motionPin) == HIGH) {
-    digitalWrite(4, HIGH); 
-    Serial.println("Motion Detected");
+    digitalWrite(4, HIGH);
+    Serial.println("Motion Detected!");
   }
   else {
     digitalWrite(4, LOW);  
+  }
+}
+
+//Interrupt for Soil Alert
+void soilChange() {
+  if (digitalRead(soilPin) == HIGH) {
+    digitalWrite(7, HIGH);
+    Serial.println("Moisture Alert!");
+  }
+  else {
+    digitalWrite(7, LOW);  
   }
 }
