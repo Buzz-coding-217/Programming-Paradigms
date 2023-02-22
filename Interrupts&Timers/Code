@@ -1,7 +1,7 @@
 // Global variables
-const int reading = A0;
-const int motionPin = 8;
-
+const int soilPin = 10;
+const int motionPin1 = 8;
+const int motionPin2 = 9;
 
 int timer1_compare_match;
 
@@ -14,13 +14,13 @@ void setup()
   pinMode(7, OUTPUT);
   pinMode(6, OUTPUT);
   pinMode(5, OUTPUT);
-  pinMode(4, OUTPUT);
   pinMode(13, OUTPUT);
-  pinMode(motionPin, INPUT);
-  
+  pinMode(motionPin1, INPUT);
+  pinMode(motionPin2, INPUT);
+  pinMode(soilPin, INPUT);
   noInterrupts();
- 
-  // Initialising Timer1
+
+  // Initialize Timer1
   TCCR1A = 0;
   TCCR1B = 0;
  
@@ -44,37 +44,13 @@ void setup()
   // Specifying which Port to be used - Port B
   PCICR |= B00000001;
   // Specifying which Pin to be used - Pin 8
-  PCMSK0 |= B00000001;
+  PCMSK0 |= B00000111;
 }
 
 // loop will run continously
 void loop()
-{
-  // converting the value from sensor and printing it on serial monitor
-  int value = analogRead(reading);
-  float Moisture = value * 500.0 / 1023.0;
-  Serial.println(Moisture);
-  
-  // changing the color of the LED depending upon moisture
-  if (Moisture > 200 && Moisture < 300)
-  {
-   digitalWrite(7, LOW);
-   digitalWrite(6, LOW);
-   digitalWrite(5, HIGH);
-  }
-  else if (Moisture < 200)
-  {
-    digitalWrite(7, HIGH);
-    digitalWrite(6, LOW);
-    digitalWrite(5, LOW);
-  }
-  else if (Moisture > 300)
-  {
-   digitalWrite(7, LOW);
-   digitalWrite(6, HIGH);
-   digitalWrite(5, LOW);
-  }
-  delay(200);
+{ 
+  delay(1000);
 }
 
 // interrupt function which is called whenever interrupted
@@ -82,17 +58,29 @@ void loop()
 // It is a C method which directly tells the compiler for Interrupt control
 // Interrupt service routine
 ISR(PCINT0_vect) {
-  if (digitalRead(motionPin) == HIGH) {
-    digitalWrite(4, HIGH);  
+  if (digitalRead(motionPin1) == HIGH) {
+    digitalWrite(5, HIGH); 
+    Serial.println("Motion Detected!");
+  }
+  else if (digitalRead(motionPin2) == HIGH) {
+    digitalWrite(6, HIGH); 
+    Serial.println("Motion Detected!");
+  }
+  else if (digitalRead(soilPin) == HIGH) {
+    digitalWrite(7, HIGH); 
+    Serial.println("Soil Alert!");
   }
   else {
-    digitalWrite(4, LOW);  
+    digitalWrite(7, LOW);
+    digitalWrite(6, LOW);
+    digitalWrite(5, LOW);
   }
+  
 }
 ISR(TIMER1_COMPA_vect)
 // Interrupt Service Routine for compare mode
 {
-  // Preloading the timer with the register
+  // Preload timer with compare match value
   TCNT1 = timer1_compare_match;
   
   // Write opposite value to LED
